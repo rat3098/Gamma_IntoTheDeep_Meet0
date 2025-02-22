@@ -3,23 +3,20 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.List;
 
-public abstract class AutoCommon extends LinearOpMode {
+import org.firstinspires.ftc.teamcode.common.hardware.BotCoefficients;
+
+public abstract class AutoHardware extends LinearOpMode {
 
     // motor configurations
     protected DcMotor         backleftDrive   = null;
@@ -104,7 +101,21 @@ public abstract class AutoCommon extends LinearOpMode {
 
     public void initArm() {
         rotator = hardwareMap.get(DcMotor.class, "liftArm");
+
         extender = hardwareMap.get(DcMotor.class, "liftHex");
+
+        rotator.setTargetPosition(BotCoefficients.SLIDER_BOTTOM_POSITION);
+        rotator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rotator.setPower(Math.abs(BotCoefficients.SLIDER_UP_SPEED));
+
+
+        extender = hardwareMap.get(DcMotor.class, "liftHex");
+
+        extender.setTargetPosition(BotCoefficients.SLIDER_BOTTOM_POSITION);
+        extender.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extender.setPower(Math.abs(BotCoefficients.SLIDER_UP_SPEED));
         //lifter = hardwareMap.get(DcMotor.class, "lifter");
         //rotator.setPower(0);
         //lifter.setPower(0);
@@ -201,6 +212,23 @@ public abstract class AutoCommon extends LinearOpMode {
 
             sleep(250);   // optional pause after each move.
         }
+    }
+
+    public void setAutoDriveMotorMode() {
+        frontleftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontrightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backrightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backleftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontleftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontrightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backrightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backleftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontleftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontrightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backrightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backleftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
   /* public void driveToBackBoardByAprilTag(int targetId) {
@@ -339,6 +367,7 @@ public abstract class AutoCommon extends LinearOpMode {
 
     public void initIMU(){
         // Initialize IMU in the control hub
+        //                                                                              Yaw: goes counter-clockwise
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
@@ -471,6 +500,7 @@ public abstract class AutoCommon extends LinearOpMode {
             telemetry.addLine(String.format("\nCurrentYaw=%.2f\nTargetYaw=%.2f\nTimeLapsed=%.2f ms",
                     currentYaw, targetYawDegree, (double)(timeCurrent-timeBegin)));
             telemetry.update();
+
         }
     }
 
@@ -515,7 +545,7 @@ public abstract class AutoCommon extends LinearOpMode {
         }
     }
     */
-    private void driveMotors(int flTarget, int blTarget, int frTarget, int brTarget,
+    public void driveMotors(int flTarget, int blTarget, int frTarget, int brTarget,
                              double power,
                              boolean bKeepYaw, double targetYaw){
         double currentYaw, diffYaw;

@@ -30,6 +30,9 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.teamcode.common.hardware.BotCoefficients;
 
 /*
  * This OpMode illustrates the concept of driving a path based on time.
@@ -51,7 +54,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name=" Auto: Blue Net Zone ", group="Robot")
-public class Blue_Net_Zone extends AutoCommon {
+public class Blue_Net_Zone extends AutoHardware {
 
     @Override
     public void runOpMode() {
@@ -62,23 +65,35 @@ public class Blue_Net_Zone extends AutoCommon {
         telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
-        grabberTilt.setPosition(0.1);
-        grabberL.setPosition(0.0);
-        sleep(5000);
-        sleep(500);
-        // Step 1:  Drive forward for 1 second
-        //line = "left";
-        encoderDrive(0.1,  31,  33, 2.1);
-        grabberL.setPosition(1.0);
-        sleep(500);
-        encoderDrive(0.1,  -50,  -53, 2.2);
-       /* turn(-0.1, 0.1, 2000);
-        encoderDrive(0.1,  31,  31, 1.7);
-        turn(-0.1, 0.1, 1500);
-        encoderDrive(0.1,  31,  31, .5);
-        */
 
+        // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
+        grabberTilt.setPosition(0.8);
+
+        grabberL.setPosition(1.0);
+
+        sleep(2000);
+
+
+        encoderDrive(0.3,  38,  38, 9);
+
+        sleep(2000);
+
+        grabberL.setPosition(0.1);
+
+        sleep(500);
+        // turn 90deg clockwise
+        turnToTargetYaw(-90, .2, 1000);
+
+        encoderDrive(0.3,  56,  53, 5);
+        turnToTargetYaw(90, .2, 1000);
+        encoderDrive(0.3,  -56,  -53, 3);
+
+        sleep(1000);
+        rotator.setTargetPosition(BotCoefficients.SLIDER_LOW_BAR_HEIGHT);
+        rotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rotator.setPower(Math.abs(BotCoefficients.SLIDER_UP_SPEED));
+        sleep(10000);
+        rotator.setPower(0);
 
     }
 }

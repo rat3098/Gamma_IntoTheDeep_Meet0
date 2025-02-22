@@ -50,8 +50,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name=" Auto: Blue Direct Park ", group="Robot")
-public class Blue_Direct_Park extends AutoHardware {
+@Autonomous(name=" Auto: Red Direct Park ", group="Robot")
+public class Red_Direct_Park extends AutoHardware {
 
     @Override
     public void runOpMode() {
@@ -60,19 +60,20 @@ public class Blue_Direct_Park extends AutoHardware {
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
         // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
-        grabberTilt.setPosition(0.5);
-        grabberL.setPosition(0.5);
+        grabberTilt.setPosition(0.1);
+        grabberL.setPosition(0.0);
+
         //sleep(5000);
-        //
         sleep(500);
+
         // Step 1:  Drive forward for 1 second
         //line = "left";
-        encoderDrive(0.37,  31,  33, 8);
-        sleep (7000);
+        encoderDrive(0.1,  31,  33, 1.5);
+
        /* turn(-0.1, 0.1, 2000);
         encoderDrive(0.1,  31,  31, 1.7);
         turn(-0.1, 0.1, 1500);
