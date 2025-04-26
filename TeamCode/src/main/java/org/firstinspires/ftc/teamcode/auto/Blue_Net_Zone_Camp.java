@@ -57,7 +57,8 @@ import org.firstinspires.ftc.teamcode.common.hardware.BotCoefficients;
  */
 
 @Autonomous(name=" Auto: Blue Net Zone Camp", group="Robot")
-public class Blue_Net_Zone_Camp extends AutoHardware {
+public class
+Blue_Net_Zone_Camp extends AutoHardware {
 
     @Override
     public void runOpMode() {
