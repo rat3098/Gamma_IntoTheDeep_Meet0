@@ -35,7 +35,7 @@ public class RobotHardware {
     public DcMotor intake = null;
 
 
-    public CRServo pusher0 = null;
+    //public CRServo pusher0 = null;
     public CRServo pusher1 = null;
   // public Limelight3A limelight;
 
@@ -66,7 +66,7 @@ public class RobotHardware {
         motorbr = hwMap.get(DcMotor.class, "motorbr");
         hogback = hwMap.get(DcMotor.class, "hogback");
        // limelight = hwMap.get(Limelight3A.class, "limelight");
-        pusher0 = hwMap.get(CRServo.class, "pusher0");
+       // pusher0 = hwMap.get(CRServo.class, "pusher0");
         pusher1 = hwMap.get(CRServo.class, "pusher1");
         intake = hwMap.get(DcMotor.class, "intake");
 
@@ -80,7 +80,7 @@ public class RobotHardware {
         motorfr.setDirection(DcMotor.Direction.REVERSE);
         motorbr.setDirection(DcMotor.Direction.REVERSE);
 
-        pusher0.setPower(0);
+       // pusher0.setPower(0);
         pusher1.setPower(0);
        // limelight.stop();
 
