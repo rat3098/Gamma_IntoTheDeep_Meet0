@@ -77,8 +77,10 @@ public class RobotHardware {
         motorbr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorbl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hogback.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorfr.setDirection(DcMotor.Direction.REVERSE);
-        motorbr.setDirection(DcMotor.Direction.REVERSE);
+        motorfl.setDirection(DcMotor.Direction.REVERSE);
+        motorbl.setDirection(DcMotor.Direction.REVERSE);
+        motorfr.setDirection(DcMotor.Direction.FORWARD);
+        motorbr.setDirection(DcMotor.Direction.FORWARD);
 
        // pusher0.setPower(0);
         pusher1.setPower(0);
