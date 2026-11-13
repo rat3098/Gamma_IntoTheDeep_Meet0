@@ -32,12 +32,15 @@ public class RobotHardware {
 
 
     public DcMotor hogback = null;
-    public DcMotor intake = null;
 
+    public DcMotor intake1 = null;
+
+    public DcMotor intake2 = null;
+
+
+    public Servo gate = null;
 
     //public CRServo pusher0 = null;
-    public CRServo pusher1 = null;
-  // public Limelight3A limelight;
 
     public IMU imu;
 
@@ -65,10 +68,11 @@ public class RobotHardware {
         motorbl = hwMap.get(DcMotor.class, "motorbl");
         motorbr = hwMap.get(DcMotor.class, "motorbr");
         hogback = hwMap.get(DcMotor.class, "hogback");
+        intake1 = hwMap.get(DcMotor.class, "intake1");
+        intake2 = hwMap.get(DcMotor.class, "intake2");
+        gate = hwMap.get(Servo.class, "gate");
        // limelight = hwMap.get(Limelight3A.class, "limelight");
-       // pusher0 = hwMap.get(CRServo.class, "pusher0");
-        pusher1 = hwMap.get(CRServo.class, "pusher1");
-        intake = hwMap.get(DcMotor.class, "intake");
+      //  pusher0 = hwMap.get(CRServo.class, "pusher0");
 
 
         // set Brake zero power behavior
@@ -77,13 +81,13 @@ public class RobotHardware {
         motorbr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorbl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hogback.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorfl.setDirection(DcMotor.Direction.REVERSE);
         motorbl.setDirection(DcMotor.Direction.REVERSE);
-        motorfr.setDirection(DcMotor.Direction.FORWARD);
-        motorbr.setDirection(DcMotor.Direction.FORWARD);
 
-       // pusher0.setPower(0);
-        pusher1.setPower(0);
+      //  pusher0.setPower(0);
+        gate.setPosition(0.0);
        // limelight.stop();
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy

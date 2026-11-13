@@ -1,159 +1,109 @@
-
 package org.firstinspires.ftc.teamcode.opmode.OpMode;
+
+import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.teamcode.common.hardware.BotCoefficients;
 import org.firstinspires.ftc.teamcode.common.hardware.RobotHardware;
 
+//a
 @TeleOp(name = "OpMode3")
+
 public class OpMode3 extends LinearOpMode {
+    public ElapsedTime mRunTime = new ElapsedTime();
 
-    private final RobotHardware robot = new RobotHardware();
+    RobotHardware robot = new RobotHardware();
 
-    private static final double DRIVE_SPEED = 0.6;
-    private static final double INTAKE_FORWARD_VELOCITY = -0.8;
+    private int sleepMs1 = 0;
+    private boolean bMoveUpHogback = false;
+    private boolean wasPusherMoving = false;
 
-    private final ElapsedTime pusherBrakeTimer = new ElapsedTime();
-
-    private double lastPusherDirection = 0.0;
-    private boolean pusherBraking = false;
-
+    /**
+     * This function is executed when this Op Mode is selected from the Driver Station.
+     */
+    @SuppressLint("DefaultLocale")
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         robot.init(hardwareMap);
 
-        telemetry.addLine("OpMode3 Initialized");
-        telemetry.update();
+        // Put initialization blocks here.
 
         waitForStart();
-
         while (opModeIsActive()) {
+            double horizontal = -1.0 * gamepad1.right_stick_x * 0.6;
+            double vertical = gamepad1.right_stick_y * 0.6;
+            double turn = -1.0 * gamepad1.left_stick_x * 0.6;
 
-            // =========================
-            // MECANUM DRIVE - GAMEPAD 1
-            // =========================
+            double flPower = vertical - turn - horizontal;
+            double frPower = vertical + turn - horizontal;
+            double blPower = vertical - turn + horizontal;
+            double brPower = vertical + turn + horizontal;
+            double scaling = Math.max(1.0,
+                    Math.max(Math.max(Math.abs(flPower), Math.abs(frPower)),
+                            Math.max(Math.abs(blPower), Math.abs(brPower))));
+            flPower = flPower / scaling;
+            frPower = frPower / scaling;
+            blPower = blPower / scaling;
+            brPower = brPower / scaling;
+            robot.setDrivePower(flPower, frPower, blPower, brPower);
 
-            double y = -gamepad1.left_stick_y * DRIVE_SPEED;
-            double x = gamepad1.left_stick_x * DRIVE_SPEED;
-            double rx = gamepad1.right_stick_x * DRIVE_SPEED;
+            telemetry.addLine(String.format("FL: %d \nBL %d \nFR: %d \nBR: %d ",
+                    robot.motorfl.getCurrentPosition(),
+                    robot.motorbl.getCurrentPosition(),
+                    robot.motorfr.getCurrentPosition(),
+                    robot.motorbr.getCurrentPosition()
+            ));
 
-            double denominator = Math.max(
-                    Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
 
-            double flPower = (y + x + rx) / denominator;
-            double blPower = (y - x + rx) / denominator;
-            double frPower = (y - x - rx) / denominator;
-            double brPower = (y + x - rx) / denominator;
+//make sure one of the directions is correct/reversed
 
-            robot.setDrivePower(
-                    flPower, frPower, blPower, brPower);
+//            if (gamepad2.left_trigger_pressed) {
+//                robot.pusher0.setPower(1.0);
+//                wasPusherMoving = true;
+//            } else if (gamepad2.left_bumper) {
+//                robot.pusher0.setPower(-1.0);
+//                wasPusherMoving = true;
+//            } else {
+//                // fire a tiny counter-pulse to stop movement
+//                if (wasPusherMoving) {
+//                    double brakePower;
+//                    if (robot.pusher0.getPower() < 0) { // 2 conditions: forward or backward
+//                        brakePower = 0.4;   // pulse backward
+//                    } else {
+//                        brakePower = -0.4;  // pulse forward
+//                    }
+//                    robot.pusher0.setPower(brakePower);
+//                    sleep(30); // 30ms hardware pulse to stop completely
+//                    wasPusherMoving = false;
+//                }
+//
+//                // Hard stop signal
+//                robot.pusher0.setPower(0.0);
+//            }
 
-            // =========================
-            // INTAKE - GAMEPAD 2
-            // A = START
-            // B = STOP
-            // =========================
 
-            if (gamepad2.y) {
-                robot.intake.setPower(0.5);
-            }else if(gamepad2.a){
-                robot.intake.setPower(-0.5);
+
+            // 1. Moving Forward
+            if (gamepad2.right_stick_y > 0.5 ) {
+                robot.hogback.setPower(BotCoefficients.HOGBACK_POWERUP);
             }
-            if (gamepad2.b) {
-                robot.intake.setPower(0.0);
+// 2. Moving Backward
+            else if (gamepad2.right_stick_y < -0.5) {
+                robot.hogback.setPower(BotCoefficients.HOGBACK_POWERDOWN);
             }
-
-            // =========================
-            // PUSHER - GAMEPAD 2
-            // LEFT TRIGGER = FORWARD
-            // LEFT BUMPER = REVERSE
-            // =========================
-
-            if (gamepad2.left_trigger > 0.5) {
-
-             //   robot.pusher0.setPower(1.0);
-                robot.pusher1.setPower(-1.0);
-                lastPusherDirection = 1.0;
-                pusherBraking = false;
-
-            } else if (gamepad2.left_bumper) {
-
-              //  robot.pusher0.setPower(-1.0);
-                robot.pusher1.setPower(1.0);
-                lastPusherDirection = -1.0;
-                pusherBraking = false;
-
-            } else if (!pusherBraking && lastPusherDirection != 0.0) {
-
-                // Brief counterpulse when the pusher control is released
-              //  robot.pusher0.setPower(-lastPusherDirection);
-                robot.pusher1.setPower(lastPusherDirection);
-                pusherBrakeTimer.reset();
-                pusherBraking = true;
-
-            } else if (pusherBraking
-                    && pusherBrakeTimer.milliseconds() < 30) {
-
-              //  robot.pusher0.setPower(-lastPusherDirection);
-                robot.pusher1.setPower(lastPusherDirection);
-
-            } else {
-
-             //   robot.pusher0.setPower(0.0);
-                robot.pusher1.setPower(0.0);
-                lastPusherDirection = 0.0;
-                pusherBraking = false;
+// 3. Joystick is back in the neutral/original position
+            else {
+                robot.hogback.setPower(BotCoefficients.HOGBACK_STOP); // Sets power to 0.0
             }
-
-            // =========================
-            // HOGBACK - GAMEPAD 2
-            // RIGHT STICK Y
-            // =========================
-
-            if (gamepad2.right_stick_y < -0.5) {
-
-                robot.hogback.setPower(
-                        BotCoefficients.HOGBACK_POWERUP);
-
-            } else if (gamepad2.right_stick_y > 0.5) {
-
-                robot.hogback.setPower(
-                        BotCoefficients.HOGBACK_POWERDOWN);
-
-            } else {
-
-                robot.hogback.setPower(
-                        BotCoefficients.HOGBACK_STOP);
-            }
-
-            // =========================
-            // ENCODER TELEMETRY
-            // =========================
-
-            telemetry.addData(
-                    "FL Encoder", robot.motorfl.getCurrentPosition());
-            telemetry.addData(
-                    "BL Encoder", robot.motorbl.getCurrentPosition());
-            telemetry.addData(
-                    "FR Encoder", robot.motorfr.getCurrentPosition());
-            telemetry.addData(
-                    "BR Encoder", robot.motorbr.getCurrentPosition());
-
-            telemetry.addData(
-                    "Intake", gamepad2.b ? "Stopping" :
-                            gamepad2.a ? "Running" : "Holding State");
-
-            telemetry.update();
         }
 
-        // Stop motors when TeleOp ends
-        robot.setAllDrivePower(0.0);
-        robot.intake.setPower(0.0);
-        robot.hogback.setPower(0.0);
-      //  robot.pusher0.setPower(0.0);
+
     }
 }
